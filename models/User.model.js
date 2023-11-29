@@ -11,13 +11,7 @@ const userSchema = new Schema({
       unique: true },
     password: { 
       type: String, 
-      required: true },
-    address: { 
-        type: String, 
-        required: true },
-    rentals: [{ 
-      type: Schema.Types.ObjectId, 
-      ref: 'Rental' }],}
+      required: true },}
 );
 
 const User = model("User", userSchema);
