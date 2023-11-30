@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {Schema, model } = mongoose; 
+const {Schema, model } = mongoose;
 
 const rentalSchema = new Schema({
     product: { 

@@ -23,8 +23,8 @@ const productRoutes = require('./routes/product.routes');
 app.use("/api", productRoutes);
 
 /*
-const taskRoutes = require('./routes/task.routes');
-app.use("/api", taskRoutes);*/
+const rentalRoutes = require('./routes/rental.routes');
+app.use("/api", rentalRoutes);*/
 
 
 const authRoutes = require('./routes/auth.routes');
