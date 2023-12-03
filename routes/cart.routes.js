@@ -1,15 +1,19 @@
-const router = require('express').Router();
-const Order = require('../models/Cart.model');
+const express = require("express");
 const mongoose = require('mongoose');
 
+/* Configure an Express Router for the Project Routes */
+const router = express.Router();
+
+const Cart = require('../models/Cart.model');
+
 // Create Order
-router.post('/cart', async (req, res, next) => {
-  const { user, products, total, shipping } = req.body;
+router.post('/cart', async (req, res) => {
+  const { products, user: userId, total, shipping } = req.body;
 
   try {
-    const newOrder = await Order.create({
-      user,
+    const newOrder = await Cart.create({
       products,
+      user: userId,
       total,
       shipping
     });
@@ -32,7 +36,7 @@ router.get('/cart/:cartId', async (req, res, next) => {
       return res.status(400).json({ message: 'Please use a valid ID' });
     }
 
-    const getOrder = await Order.findById(orderId).populate(
+    const getOrder = await Cart.findById(orderId).populate(
       'products store user products.product'
     );
 
@@ -51,7 +55,7 @@ router.get('/cart/:cartId', async (req, res, next) => {
 router.get('/cart/user/:userId', async (req, res, next) => {
   const { userId } = req.params;
   try {
-    const getOrders = await Order.find({ user: userId }).populate(
+    const getOrders = await Cart.find({ user: userId }).populate(
       'products store products.product'
     );
 
@@ -73,7 +77,7 @@ router.delete('/cart/:cartId', async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({ message: 'Please use a valid ID' });
     }
-    const deleteOrder = await Order.findByIdAndDelete(orderId, {
+    const deleteOrder = await Cart.findByIdAndDelete(orderId, {
       new: true
     });
     res.json({
