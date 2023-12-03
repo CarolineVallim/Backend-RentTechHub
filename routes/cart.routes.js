@@ -7,7 +7,7 @@ const router = express.Router();
 const Cart = require('../models/Cart.model');
 
 // Create Order
-router.post('/cart', async (req, res) => {
+router.post('/cart', async (req, res, next) => {
   const { products, user: userId, total, shipping } = req.body;
 
   try {
