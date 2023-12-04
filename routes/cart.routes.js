@@ -55,19 +55,24 @@ router.get('/cart/:cartId', async (req, res, next) => {
 router.get('/cart/user/:userId', async (req, res, next) => {
   const { userId } = req.params;
   try {
+    console.log('Fetching orders for userId:', userId);
     const getOrders = await Cart.find({ user: userId }).populate(
       'products store products.product'
     );
+    console.log('Orders retrieved:', getOrders);
 
-    if (!getOrders) {
+    if (!getOrders || getOrders.length === 0) {
+      console.log('No orders found for user:', userId);
       return res.status(404).json({ message: 'No Orders found for that user' });
     }
     res.json(getOrders);
   } catch (error) {
-    console.log('There was an error retrieving the Order', error);
+    console.error('Error retrieving orders:', error);
     next(error);
   }
 });
+
+
 
 
 router.delete('/cart/:cartId', async (req, res, next) => {
