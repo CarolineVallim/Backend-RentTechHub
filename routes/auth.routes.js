@@ -107,31 +107,44 @@ router.get('/verify', isAuthenticated, (req,res)=>{
 })
 
 // PUT '/auth/update' - Updates user information
-router.put('/update', isAuthenticated, async (req, res) => {
+router.put('/update/:userId', isAuthenticated, async (req, res) => {
     try {
         const userId = req.payload._id;
         const { firstName, lastName, password, email, address, imageProfile } = req.body;
-        
+
+        // Validate incoming data
+        if (!firstName && !password && !email) {
+            return res.status(400).json({ message: 'Provide at least one field to update' });
+        }
+
         const foundUser = await User.findById(userId);
         if (!foundUser) {
             return res.status(404).json({ message: 'User not found' });
-        }
-        if (firstName) {
-            foundUser.firstName = firstName;
-        }
-        if (password) {
-            const salt = bcrypt.genSaltSync(saltRounds);
-            const hashedPassword = bcrypt.hashSync(password, salt);
-            foundUser.password = hashedPassword;
-        }
-        if (email) {
+        } else {
+            // Update user fields if provided
+            if (firstName) {
+                foundUser.firstName = firstName;
+            }
+            if (password) {
+                const salt = bcrypt.genSaltSync(saltRounds);
+                const hashedPassword = bcrypt.hashSync(password, salt);
+                foundUser.password = hashedPassword;
+            }
+            if (email) {
+                foundUser.email = email;
+            }
+            if (address) {
+                foundUser.address = address;
+            }
+            if (imageProfile) {
+                foundUser.imageProfile = imageProfile;
+            }
 
-            foundUser.email = email;
+            const updatedUser = await foundUser.save();
+            const { _id, email: updatedEmail, firstName: updatedName, address: updatedAddress, imageProfile: updatedImageProfile } = updatedUser;
+            const updatedUserData = { _id, email: updatedEmail, firstName: updatedName, address: updatedAddress, imageProfile: updatedImageProfile };
+            res.status(200).json({ user: updatedUserData, message: 'User updated successfully' });
         }
-        const updatedUser = await foundUser.save();
-        const { _id, email: updatedEmail, firstName: updatedName } = updatedUser;
-        const updatedUserData = { _id, email: updatedEmail, name: updatedName };
-        res.status(200).json({ user: updatedUserData, message: 'User updated successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
