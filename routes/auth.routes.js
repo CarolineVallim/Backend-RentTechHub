@@ -12,7 +12,7 @@ const saltRounds = 10;
 
 // POST '/auth/signup' - Creates a new user in the database
 router.post('/signup', (req,res)=>{
-    const {email, password, name} = req.body; 
+    const {email, password, firstName, lastName, imageProfile, address} = req.body; 
     /* doing object destructuring is the same as: 
     const email = req.body.email; 
     const password = req.body.password; 
@@ -20,7 +20,7 @@ router.post('/signup', (req,res)=>{
     */
 
     /*  "What if I don't have all the required fields with information?"  */
-    if(email === '' || password === '' || name === ''){
+    if(email === '' || password === '' || firstName === '' || lastName === '' || address === ''){
         res.status(400).json({message: "Provide email, password and name."})
         return; // -> return will stop the code. 
     }
@@ -51,11 +51,11 @@ router.post('/signup', (req,res)=>{
             const salt = bcrypt.genSaltSync(saltRounds);
             const hashedPassword = bcrypt.hashSync(password, salt);
 
-            return User.create({email, password: hashedPassword, name});
+            return User.create({email, password: hashedPassword, firstName, lastName, imageProfile, address});
         }).then((createdUser)=>{
-            const {email, name, _id} = createdUser;
+            const {email, firstName, lastName, _id, imageProfile, address} = createdUser;
 
-            const user = {email, name, _id};
+            const user = {email, firstName, lastName, _id, imageProfile, address};
 
             res.status(201).json({user});
         })
@@ -69,7 +69,6 @@ router.post('/signup', (req,res)=>{
 router.post('/login', (req, res)=>{
     const {email, password} = req.body; 
 
-    /* What if email and password were left blank? */
     if(email === '' || password === ''){
         res.status(400).json({message: 'Provide email and password.'}); 
         return;
@@ -77,7 +76,6 @@ router.post('/login', (req, res)=>{
 
     User.findOne({email})
         .then((foundUser)=>{
-            /* What if the user was not found? */
             if(!foundUser){
                 res.status(400).json({message: 'User not found'});
                 return; 
@@ -87,16 +85,15 @@ router.post('/login', (req, res)=>{
             const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
             if(passwordCorrect){
-                const {_id, email, name} = foundUser; 
+                const {_id, email, firstName, lastName, imageProfile, address} = foundUser; 
 
-                const payload = {_id, email, name};
+                const payload = {_id, email, firstName, lastName, imageProfile, address};
 
                 const authToken = jwt.sign(
                     payload, process.env.TOKEN_SECRET, {algorithm: 'HS256', expiresIn: '6h'}
                 )
                 return res.status(200).json({authToken: authToken});
             }
-            /* What if the password is not correct? */
             else{
                 return res.status(400).json({message: 'Password not found'});
             }
@@ -109,6 +106,37 @@ router.get('/verify', isAuthenticated, (req,res)=>{
     res.status(200).json(req.payload);
 })
 
+// PUT '/auth/update' - Updates user information
+router.put('/update', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.payload._id;
+        const { firstName, lastName, password, email, address, imageProfile } = req.body;
+        
+        const foundUser = await User.findById(userId);
+        if (!foundUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (firstName) {
+            foundUser.firstName = firstName;
+        }
+        if (password) {
+            const salt = bcrypt.genSaltSync(saltRounds);
+            const hashedPassword = bcrypt.hashSync(password, salt);
+            foundUser.password = hashedPassword;
+        }
+        if (email) {
+
+            foundUser.email = email;
+        }
+        const updatedUser = await foundUser.save();
+        const { _id, email: updatedEmail, firstName: updatedName } = updatedUser;
+        const updatedUserData = { _id, email: updatedEmail, name: updatedName };
+        res.status(200).json({ user: updatedUserData, message: 'User updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 
 module.exports = router; 
