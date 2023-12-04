@@ -21,8 +21,11 @@ const userSchema = new Schema({
     address: {
       type: String,
       required: true
-    }
-    }
+    },
+    type: {
+      type: String,
+      required: true
+    }}
 );
 
 const User = model("User", userSchema);

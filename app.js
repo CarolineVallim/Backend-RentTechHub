@@ -10,6 +10,7 @@ require("./db");
 const express = require("express");
 
 const app = express();
+require('express-async-errors')
 
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
