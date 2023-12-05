@@ -22,7 +22,7 @@ router.get('/cart/user/:userId', async (req, res, next) => {
     res.json(getOrders);
 });
 
-router.patch('/cart/:userId/product/:productId', async (req, res)=>{
+router.put('/cart/:userId/product/:productId', async (req, res)=>{
   const { userId, productId } = req.params;
   const {total, shipping} = req.body;
 
@@ -33,7 +33,7 @@ router.patch('/cart/:userId/product/:productId', async (req, res)=>{
 })
 
 // Delete only a single product
-router.delete('/cart/:cartId/:productId', async (req, res, next) => {
+router.put('/cart/:cartId/:productId', async (req, res, next) => {
   const { cartId, productId } = req.params;
 
   try {
@@ -56,8 +56,6 @@ router.delete('/cart/:cartId/:productId', async (req, res, next) => {
     next(error);
   }
 });
-
-
 
 // delete all products
 router.delete('/cart/:cartId', async (req, res, next) => {
