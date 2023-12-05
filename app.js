@@ -23,11 +23,6 @@ app.use("/api", indexRoutes);
 const productRoutes = require('./routes/product.routes');
 app.use("/api", productRoutes);
 
-/*
-const rentalRoutes = require('./routes/rental.routes');
-app.use("/api", rentalRoutes);*/
-
-
 const authRoutes = require('./routes/auth.routes');
 app.use('/auth', authRoutes);
 
