@@ -22,6 +22,7 @@ router.get('/cart/user/:userId', async (req, res, next) => {
     res.json(getOrders);
 });
 
+// Update your card by userId and put a new product in the cart
 router.put('/cart/:userId/product/:productId', async (req, res)=>{
   const { userId, productId } = req.params;
   const {total, shipping} = req.body;
@@ -31,6 +32,26 @@ router.put('/cart/:userId/product/:productId', async (req, res)=>{
   res.json(newOrder);
 
 })
+
+// Update total in the cart by userId
+router.put('/cart/:userId/update-total', async (req, res) => {
+  const { userId } = req.params;
+  const { total } = req.body;
+
+  try {
+    const updatedCart = await Cart.findOneAndUpdate(
+      { user: userId },
+      { total: total },
+      { new: true }
+    );
+
+    res.json(updatedCart);
+  } catch (error) {
+    console.error('An error occurred updating the cart total', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 // Delete only a single product
 router.put('/cart/:cartId/:productId', async (req, res, next) => {
