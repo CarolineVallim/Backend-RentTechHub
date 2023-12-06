@@ -11,10 +11,11 @@ const Product = require("../models/Product.model");
 /* ROUTES */
 
 // POST - Creates a new product
-router.post("/products/new", (req, res) => {
+router.post("/:userId/product/new", (req, res) => {
+  const {userId} = req.params;
   const { name, image, description, rentalPrice, stock } = req.body;
 
-  Product.create({ name, image, description, rentalPrice, stock })
+  Product.create({ name, image, description, rentalPrice, stock, user: userId })
     .then((response) => res.json(response))
     .catch((error) => res.json(error));
 });
@@ -26,7 +27,6 @@ router.get("/products", (req, res) => {
     .catch((error) => res.json(error));
 });
 
-
 // GET - Reads a specific product
 router.get("/products/:productId", (req, res) => {
   const {productId} = req.params;
@@ -35,6 +35,14 @@ router.get("/products/:productId", (req, res) => {
     .catch((error) => res.json(error));
 });
 
+// GET - Reads all products from a specific user
+router.get("/products/user/:userId", async (req, res) => {
+  const {userId} = req.params;
+  const productsUser = await Product.findOne({user:userId})
+
+  res.json(productsUser);
+
+});
 
 // PUT - Updates a specific product
 router.put("/products/:productId", (req, res) => {

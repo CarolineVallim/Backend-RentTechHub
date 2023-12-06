@@ -17,6 +17,10 @@ const productSchema = new Schema({
     stock: { 
         type: Number, 
         required: true },
+    user:{ 
+        type: Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true }
 });
 
 const Product = model("Product", productSchema);
