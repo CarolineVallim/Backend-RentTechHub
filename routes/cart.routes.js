@@ -56,21 +56,14 @@ router.put('/cart/:userId/update-total', async (req, res) => {
 // Delete only a single product
 router.put('/cart/:cartId/:productId', async (req, res, next) => {
   const { cartId, productId } = req.params;
-
   try {
-    if (!mongoose.Types.ObjectId.isValid(cartId) || !mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({ message: 'Please use valid IDs' });
-    }
-
     const updatedCart = await Cart.findByIdAndUpdate(
       cartId,
-      { $pull: { products: { _id: productId } } },
-      { new: true }
-    );
-
-    res.json({
-      message: `Product with ID ${productId} was deleted from cart successfully`,
-      updatedCart
+      {$pull: {products: productId }}, // add this Bernardo
+      {new: true }
+    ); 
+    res.json({ 
+      updatedCart // add this Bernardo
     });
   } catch (error) {
     console.log('An error occurred deleting the product from the cart', error);
