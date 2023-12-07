@@ -37,12 +37,19 @@ router.get("/products/:productId", (req, res) => {
 
 // GET - Reads all products from a specific user
 router.get("/products/user/:userId", async (req, res) => {
-  const {userId} = req.params;
-  const productsUser = await Product.findOne({user:userId})
+  try {
+    const { userId } = req.params;
+    const productsUser = await Product.find({ user: userId });
 
-  res.json(productsUser);
+    console.log("Retrieved products:", productsUser);
 
+    res.json(productsUser);
+  } catch (error) {
+    console.error("Error fetching user products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
+
 
 // PUT - Updates a specific product
 router.put("/products/:productId", (req, res) => {
