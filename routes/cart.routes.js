@@ -1,5 +1,10 @@
 const express = require("express");
 const mongoose = require('mongoose');
+const { resolve } = require("path");
+// Replace if using a different env file or config
+const env = require("dotenv").config({ path: resolve(__dirname, "../.env") });
+const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST)
+
 
 /* Configure an Express Router for the Project Routes */
 const router = express.Router();
@@ -91,6 +96,44 @@ router.delete('/cart/:cartId', async (req, res, next) => {
     next(error);
   }
 });
+
+router.post("/payment", async (req, res) => {
+	let { amount, cart } = req.body
+	try {
+		const payment = await stripe.paymentIntents.create({
+			amount: amount,
+			currency: "EUR",
+			description: cart[0]._id,
+			automatic_payment_methods: { enabled: true, allow_redirects: "never" },
+		});
+    
+    
+		await Cart.findByIdAndUpdate(cart._id, 
+		 {currency: payment.currency, paid: payment.created}
+		)
+
+		// check the payment object
+        console.log(payment);
+		
+		res.json({
+			clientSecret: payment.client_secret,
+			success: true
+		})
+	} catch (error) {
+		console.log("Error", error)
+		res.json({
+			message: "Payment failed",
+			success: false
+		})
+	}
+});
+
+router.get("/config", async (req, res) => {
+  res.send({
+    publishableKey: process.env.STRIPE_PUBLISHABLE_TEST,
+  })
+});
+
 
 
 module.exports = router;
