@@ -57,6 +57,25 @@ router.put('/cart/:userId/update-total', async (req, res) => {
   }
 });
 
+// Remove all products and clean from the Cart by userId
+router.put('/cart/:cartId/clearCart', async (req, res) => {
+  const { cartId } = req.params;
+  const filter = {_id: cartId};
+  const update = {total: 0, shipping: 0, $unset: {products: ""}};
+  const config = {new: true};
+
+  try {
+    const updatedCart = await Cart.findByIdAndUpdate(
+      filter,update,config
+    );
+
+    res.json(updatedCart);
+  } catch (error) {
+    console.error('An error occurred updating the cart total', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 // Delete only a single product
 router.put('/cart/:cartId/:productId', async (req, res, next) => {
